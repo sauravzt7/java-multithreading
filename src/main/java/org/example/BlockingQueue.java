@@ -88,36 +88,32 @@ public class BlockingQueue<T> {
         this.capacity = capacity;
     }
 
-    public synchronized void enqueue(T t) throws InterruptedException {
-
+    public void enqueue(T t) throws InterruptedException {
+        synchronized (lock) {
             while(size == capacity) {
-                wait();
+                lock.wait();
             }
-
             array[tail] = t;
             tail = (tail + 1) % capacity;
             size++;
-            notifyAll();
+            lock.notifyAll();
+        }
 
     }
 
-    public synchronized T dequeue() throws InterruptedException {
-
+    public T dequeue() throws InterruptedException {
         T item = null;
+        synchronized (lock) {
             while(size == 0) {
-                wait();
+                lock.wait();
             }
 
             item = array[head];
             head = (head + 1) % capacity;
             size--;
-            notifyAll();
-
-
+            lock.notifyAll();
+        }
         return item;
     }
-
-
-
 
 }
